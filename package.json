@@ -1,21 +1,48 @@
 {
-  "name": "backstack",
+  "name": "backstack-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Uma API REST completa para sistema de adoção de animais",
+  "main": "src/server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/seeders/adminSeed.js",
+    "setup": "node src/scripts/setup.js",
+    "reset": "node src/scripts/reset.js",
+    "test": "echo \"Testes serão implementados\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HttpsKenzoaoki/BackStack.git"
+  },
+  "keywords": [
+    "adoção",
+    "animais",
+    "api",
+    "nodejs",
+    "express",
+    "sequelize",
+    "sqlite"
+  ],
+  "author": "Wiliam Kenzo Aoki Da Silva, Julia Da Silva Rodrigues Ferreira, Eduardo Henrique de Oliveira Santos, Guilherme Lacerda Oliveira",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HttpsKenzoaoki/BackStack/issues"
+  },
+  "homepage": "https://github.com/HttpsKenzoaoki/BackStack#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "nodemo": "^1.0.0",
     "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
