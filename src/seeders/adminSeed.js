@@ -280,7 +280,15 @@ const executarSeed = async () => {
 };
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  executarSeed();
+  criarAdministradores()
+    .then(() => {
+      console.log('✅ Seed concluído');
+      process.exit(0);
+    })
+    .catch(error => {
+      console.error('❌ Erro no seed:', error);
+      process.exit(1);
+    });
 }
 
 export default executarSeed;
