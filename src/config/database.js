@@ -73,4 +73,3 @@ if (!sequelize) {
 }
 
 export { sequelize };
-export { sequelize };
