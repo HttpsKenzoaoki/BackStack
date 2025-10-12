@@ -6,6 +6,10 @@ node_modules/
 #.env*.local
 /FrontEnd-BackStack
 =======
+.env*.local
+src/database/.env
+.env
 
+# Log files
 logs/
 >>>>>>> 4836ba221d4cbc1dd769e85de60add3b5d56f761
