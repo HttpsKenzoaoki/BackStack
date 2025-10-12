@@ -13,26 +13,4 @@ export const configurarSeguranca = (req, res, next) => {
 };
 
 export const sanitizarInput = (req, res, next) => {
-  const sanitizar = (obj) => {
-    if (typeof obj === 'string') {
-      return obj.trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-    }
-    if (typeof obj === 'object' && obj !== null) {
-      const sanitizado = {};
-      for (const [key, value] of Object.entries(obj)) {
-        sanitizado[key] = sanitizar(value);
-      }
-      return sanitizado;
-    }
-    return obj;
-  };
 
-  if (req.body) {
-    req.body = sanitizar(req.body);
-  }
-  if (req.query) {
-    req.query = sanitizar(req.query);
-  }
-
-  next();
-};

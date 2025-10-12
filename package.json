@@ -37,7 +37,6 @@
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "sequelize": "^6.37.7",
-    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
@@ -45,4 +44,3 @@
   "engines": {
     "node": ">=18.0.0"
   }
-}

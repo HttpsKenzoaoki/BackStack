@@ -2,5 +2,10 @@
 node_modules/
 
 # local env files
+<<<<<<< HEAD
 #.env*.local
 /FrontEnd-BackStack
+=======
+
+logs/
+>>>>>>> 4836ba221d4cbc1dd769e85de60add3b5d56f761

@@ -280,7 +280,6 @@ const executarSeed = async () => {
 };
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  executarSeed();
 }
 
 export default executarSeed;
