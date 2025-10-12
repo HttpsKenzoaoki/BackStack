@@ -41,12 +41,8 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
 });
 
 app.use('/animais', animalRoutes);
@@ -56,7 +52,6 @@ app.use('/adocoes', adocaoRoutes);
 app.use('/admin', adminRoutes);
 app.use('/autenticacao', authRoutes);
 app.use('/doacoes', doacaoRoutes);
-
 
 app.get('/', (req, res) => {
   res.json({ 
@@ -102,33 +97,21 @@ app.get('/', (req, res) => {
   });
 });
 
-
 app.use(rotaNaoEncontrada);
-
 app.use(tratarErros);
 
 async function startServer() {
   try {
+    console.log('[Server] tentando conectar ao banco...');
     await sequelize.authenticate();
-    console.log('Conexão com SQLite estabelecida!');
-    
+    console.log('Conexão com Postgres estabelecida!');
     await sequelize.sync({ force: false });
     console.log('Tabelas sincronizadas!');
-    
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log('\nBackStack API - Sistema de Adoção de Animais');
       console.log('='.repeat(50));
-      console.log(`Servidor: http://localhost:${PORT}`);
+      console.log(`Servidor escutando na porta ${PORT}`);
       console.log(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`Segurança: Ativada`);
-      console.log(`Logs: Ativados`);
-      console.log(`Rate Limiting: Ativo`);
-      console.log('\nEquipe de Desenvolvimento:');
-      console.log('  • Wiliam Kenzo Aoki Da Silva');
-      console.log('  • Julia Da Silva Rodrigues Ferreira');
-      console.log('  • Eduardo Henrique de Oliveira Santos');
-      console.log('  • Guilherme Lacerda Oliveira');
-      console.log('\nDocumentação: https://github.com/HttpsKenzoaoki/BackStack');
       console.log('='.repeat(50));
     });
   } catch (error) {
