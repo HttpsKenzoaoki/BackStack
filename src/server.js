@@ -26,6 +26,7 @@ import './models/index.js';
 import { sequelize } from './config/database.js';
 
 const app = express();
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(configurarSeguranca);
 app.use(rateLimitAPI);
