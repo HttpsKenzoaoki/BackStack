@@ -51,6 +51,7 @@ const Questionario = sequelize.define('Questionario', {
   idades_criancas: {
     type: DataTypes.JSON, 
     allowNull: true,
+    defaultValue: null 
   },
   residencia_tipo: {
     type: DataTypes.STRING,
