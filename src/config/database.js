@@ -6,7 +6,7 @@ dotenv.config();
 function makeSequelizeFromSeparate(prefix = '') {
   const get = (k, def) => process.env[`${prefix}${k}`] ?? def;
   const host = get('DB_HOST');
-  const port = Number(get('DB_PORT') || 5432);
+  const port = Number(get('DB_PORT', 5432));
   const database = get('DB_NAME');
   const username = get('DB_USER');
   const password = get('DB_PASSWORD');
@@ -25,12 +25,7 @@ function makeSequelizeFromSeparate(prefix = '') {
       ssl: { require: true, rejectUnauthorized: false },
       keepAlive: true
     },
-    pool: {
-      max: 5,     
-      min: 0,
-      acquire: 60000, 
-      idle: 10000     
-    },
+    pool: { max: 5, min: 0, acquire: 60000, idle: 10000 },
     retry: {
       match: [
         /SequelizeConnectionError/,
@@ -58,12 +53,7 @@ if (process.env.DATABASE_URL) {
       ssl: { require: true, rejectUnauthorized: false },
       keepAlive: true
     },
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 60000,
-      idle: 10000
-    },
+    pool: { max: 5, min: 0, acquire: 60000, idle: 10000 },
     retry: {
       match: [
         /SequelizeConnectionError/,
@@ -82,6 +72,7 @@ if (process.env.DATABASE_URL) {
 } else {
   sequelize = makeSequelizeFromSeparate('SUPABASE_');
   if (!sequelize) {
+    // Fallback DB_*
     sequelize = makeSequelizeFromSeparate('');
   }
 }
