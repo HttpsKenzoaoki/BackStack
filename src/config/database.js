@@ -3,40 +3,91 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-console.log("🔍 Verificando variáveis de ambiente:");
-console.log("SUPABASE_DB_HOST:", process.env.SUPABASE_DB_HOST);
-console.log("SUPABASE_DB_USER:", process.env.SUPABASE_DB_USER);
-console.log("SUPABASE_DB_PASSWORD:", process.env.SUPABASE_DB_PASSWORD ? "✅" : "❌");
+function makeSequelizeFromSeparate(prefix = '') {
+  const get = (k, def) => process.env[`${prefix}${k}`] ?? def;
+  const host = get('DB_HOST');
+  const port = Number(get('DB_PORT') || 5432);
+  const database = get('DB_NAME');
+  const username = get('DB_USER');
+  const password = get('DB_PASSWORD');
 
-export const sequelize = new Sequelize(
-  process.env.SUPABASE_DB_NAME,
-  process.env.SUPABASE_DB_USER,
-  process.env.SUPABASE_DB_PASSWORD,
-  {
-    host: process.env.SUPABASE_DB_HOST,
-    port: process.env.SUPABASE_DB_PORT || 6543,
+  if (!host || !database || !username || !password) return null;
+
+  return new Sequelize({
     dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    },
+    host,
+    port,
+    database,
+    username,
+    password,
     logging: false,
+    dialectOptions: {
+      ssl: { require: true, rejectUnauthorized: false },
+      keepAlive: true
+    },
+    pool: {
+      max: 5,     
+      min: 0,
+      acquire: 60000, 
+      idle: 10000     
+    },
+    retry: {
+      match: [
+        /SequelizeConnectionError/,
+        /SequelizeConnectionRefusedError/,
+        /SequelizeHostNotFoundError/,
+        /SequelizeHostNotReachableError/,
+        /SequelizeInvalidConnectionError/,
+        /SequelizeConnectionTimedOutError/,
+        'ETIMEDOUT',
+        'ECONNRESET',
+        'ECONNREFUSED'
+      ],
+      max: 3
+    }
+  });
+}
+
+let sequelize;
+
+if (process.env.DATABASE_URL) {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+      ssl: { require: true, rejectUnauthorized: false },
+      keepAlive: true
+    },
     pool: {
       max: 5,
       min: 0,
-      acquire: 30000,
+      acquire: 60000,
       idle: 10000
     },
-    define: {
-      timestamps: true,
-      underscored: true, 
-      freezeTableName: true
+    retry: {
+      match: [
+        /SequelizeConnectionError/,
+        /SequelizeConnectionRefusedError/,
+        /SequelizeHostNotFoundError/,
+        /SequelizeHostNotReachableError/,
+        /SequelizeInvalidConnectionError/,
+        /SequelizeConnectionTimedOutError/,
+        'ETIMEDOUT',
+        'ECONNRESET',
+        'ECONNREFUSED'
+      ],
+      max: 3
     }
+  });
+} else {
+  sequelize = makeSequelizeFromSeparate('SUPABASE_');
+  if (!sequelize) {
+    sequelize = makeSequelizeFromSeparate('');
   }
-);
+}
 
-sequelize.authenticate()
-  .then(() => console.log('✅ Conectado ao Supabase PostgreSQL!'))
-  .catch(err => console.error('❌ Erro ao conectar:', err.message));
+if (!sequelize) {
+  throw new Error('Config do banco não encontrada. Defina DATABASE_URL ou SUPABASE_DB_* ou DB_*');
+}
+
+export { sequelize };
