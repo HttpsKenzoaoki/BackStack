@@ -70,6 +70,7 @@ if (process.env.DATABASE_URL) {
     }
   });
 } else {
+  // SUPABASE_DB_* (ex.: SUPABASE_DB_HOST, SUPABASE_DB_PORT=6543, etc.)
   sequelize = makeSequelizeFromSeparate('SUPABASE_');
   if (!sequelize) {
     // Fallback DB_*
