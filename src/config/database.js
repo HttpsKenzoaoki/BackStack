@@ -30,6 +30,9 @@ const common = {
       'ECONNREFUSED'
     ],
     max: 3
+  },
+  define: {
+    underscored: true 
   }
 };
 
