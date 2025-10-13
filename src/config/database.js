@@ -1,23 +1,19 @@
+import dns from 'node:dns';
+import pg from 'pg';
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-function safeLogDbUrl(url) {
-  if (!url) return 'undefined';
-  try {
-    const u = new URL(url);
-    return `${u.protocol}//${u.hostname}:${u.port || ''}${u.pathname}${u.search}`;
-  } catch {
-    return '(invalid URL format)';
-  }
-}
+try { dns.setDefaultResultOrder('ipv4first'); } catch {}
+
+pg.defaults.ssl = { rejectUnauthorized: false };
 
 const common = {
   dialect: 'postgres',
   logging: false,
   dialectOptions: {
-    ssl: { require: true, rejectUnauthorized: false },
+    ssl: { rejectUnauthorized: false },
     keepAlive: true
   },
   pool: { max: 5, min: 0, acquire: 60000, idle: 10000 },
@@ -37,39 +33,24 @@ const common = {
   }
 };
 
-function makeFromSeparate(prefix = '') {
-  const get = (k, def) => process.env[`${prefix}${k}`] ?? def;
-  const host = get('DB_HOST');
-  const port = Number(get('DB_PORT', 5432));
-  const database = get('DB_NAME');
-  const username = get('DB_USER');
-  const password = get('DB_PASSWORD');
-
-  if (!host || !database || !username || !password) return null;
-
-  console.log(`[DB] Using separate vars ${prefix ? '(' + prefix + ')' : ''}: host=${host} port=${port} db=${database} user=${username}`);
-
-  return new Sequelize({
-    ...common,
-    host,
-    port,
-    database,
-    username,
-    password
-  });
-}
-
 let sequelize;
 
 if (process.env.DATABASE_URL) {
-  console.log('[DB] Using DATABASE_URL:', safeLogDbUrl(process.env.DATABASE_URL));
+  console.log('[DB] Using DATABASE_URL');
   sequelize = new Sequelize(process.env.DATABASE_URL, common);
 } else {
-  sequelize = makeFromSeparate('SUPABASE_') || makeFromSeparate('');
-}
+  const host = process.env.SUPABASE_DB_HOST || process.env.DB_HOST;
+  const port = Number(process.env.SUPABASE_DB_PORT || process.env.DB_PORT || 5432);
+  const database = process.env.SUPABASE_DB_NAME || process.env.DB_NAME;
+  const username = process.env.SUPABASE_DB_USER || process.env.DB_USER;
+  const password = process.env.SUPABASE_DB_PASSWORD || process.env.DB_PASSWORD;
 
-if (!sequelize) {
-  throw new Error('Config do banco não encontrada. Defina DATABASE_URL ou SUPABASE_DB_* ou DB_*');
+  if (!host || !database || !username || !password) {
+    throw new Error('Config do banco não encontrada. Defina DATABASE_URL ou SUPABASE_DB_* ou DB_*');
+  }
+
+  console.log(`[DB] Using separate vars: host=${host} port=${port} db=${database} user=${username}`);
+  sequelize = new Sequelize({ ...common, host, port, database, username, password });
 }
 
 export { sequelize };
