@@ -28,13 +28,24 @@ import { sequelize } from './config/database.js';
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
+app.use((req, _res, next) => {
+  const originalUrl = req.url;
+  req.url = req.url.replace(/\/{2,}/g, '/');
+  if (req.url.length > 1 && req.url.endsWith('/')) {
+    req.url = req.url.slice(0, -1);
+  }
+  if (originalUrl !== req.url) {
+    console.log(`[Normalize] ${originalUrl} -> ${req.url}`);
+  }
+  next();
+});
+
 app.use(configurarSeguranca);
 app.use(rateLimitAPI);
 app.use(logarRequisicoes);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-
 app.use(sanitizarInput);
 
 app.use((req, res, next) => {
@@ -45,13 +56,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/animais', animalRoutes);
-app.use('/tutores', tutorRoutes);
-app.use('/questionario', questionarioRoutes);
-app.use('/adocoes', adocaoRoutes);
-app.use('/admin', adminRoutes);
-app.use('/autenticacao', authRoutes);
-app.use('/doacoes', doacaoRoutes);
+app.get('/favicon.ico', (_req, res) => res.status(204).end());
+
+app.use(['/animais', '/animals'], animalRoutes);
+app.use(['/tutores', '/tutors'], tutorRoutes);
+app.use(['/questionario', '/questionnaire'], questionarioRoutes);
+app.use(['/adocoes', '/adoptions'], adocaoRoutes);
+app.use(['/admin'], adminRoutes);
+app.use(['/autenticacao', '/auth'], authRoutes);
+app.use(['/doacoes', '/donations'], doacaoRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 
